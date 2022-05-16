@@ -55,6 +55,12 @@ And then go to <b> mlsys-1.ipynb </b> and execute the cells in order.
 
 #### Docker
 
+```bash
+docker network create ceb
+cd docker
+./up_db_container.sh
+```
+
 We use docker to install and configure PostgreSQL, and setup the relevant databases. Make sure that you have Docker installed appropriately for your system, with the docker daemon running. PostgreSQL requires a username, which we copy from an environement variable $LCARD_USER while setting it up in docker. Similarly, set $LCARD_PORT to the local port you want to use to connect to the PostgreSQL instance running in docker. Here are the commands to set it up:
 
 ```bash
@@ -178,6 +184,15 @@ challenging from the perspective of query optimization.
 
 ```bash
 bash scripts/download_stack_workload.sh
+```
+
+#### Add a workload
+```bash
+export PYTHONPATH="$(pwd)"
+
+# Edit variables in scripts/sql_to_qrep.py
+python3 scripts/sql_to_qrep.py
+python3 scripts/get_query_cardinalities.py --db_host=card-db --user=ceb --pwd=password --query_dir=queries/joblight/all_joblight --card_type=actual
 ```
 
 ### Python Requirements

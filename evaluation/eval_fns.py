@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from .plan_losses import PPC, PlanCost,get_leading_hint
 from query_representation.utils import deterministic_hash,make_dir
 from query_representation.viz import *
+import query_representation.query
 from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.pyplot as plt
 
@@ -27,6 +28,8 @@ def get_eval_fn(loss_name):
         return PostgresPlanCost()
     elif loss_name == "plancost":
         return SimplePlanCost()
+    elif loss_name == "extract_subqueries":
+        return ExtractSubqueries()
     elif loss_name == "flowloss":
         return FlowLoss()
     else:
@@ -259,6 +262,9 @@ class PostgresPlanCost(EvalFunc):
             trues = {}
             predq = preds[i]
             for node, node_info in qrep["subset_graph"].nodes().items():
+                if node == SOURCE_NODE:
+                    continue
+
                 est_card = predq[node]
                 alias_key = ' '.join(node)
                 trues[alias_key] = node_info["cardinality"]["actual"]
@@ -304,3 +310,22 @@ class SimplePlanCost(EvalFunc):
         costs, opt_costs = pc.compute_costs(qreps, preds, pool=pool)
         pool.close()
         return costs
+
+class ExtractSubqueries(EvalFunc):
+    def eval(self, qreps, preds, **kwargs):
+        subqueries = []
+
+        for qrep in qreps:
+            for node, node_info in qrep["subset_graph"].nodes().items():
+                if node == SOURCE_NODE:
+                    continue
+
+                subqueries.append((
+                    node_info["cardinality"]["actual"],
+                    query_representation.query.subplan_to_sql(qrep, node)))
+
+        pd.DataFrame(subqueries, columns=["true_cardinality", "sql"]).to_csv(
+            f"{kwargs['db_name']}_{qreps[0]['template_name']}_{len(subqueries)}.csv", index=False, quoting=2)
+        print(f"saved {len(subqueries)}")
+
+        return np.zeros(len(qreps))

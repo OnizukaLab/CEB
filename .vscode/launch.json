@@ -1,0 +1,116 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "job-light/true",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/main.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--query_templates",
+                "all",
+                "--algs",
+                "true",
+                "--eval_fns",
+                "qerr,ppc,plancost",
+                "--query_dir",
+                "queries/joblight",
+                "--db_host",
+                "card-db"
+            ]
+        },
+        {
+            "name": "job-light/ext",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/main.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--query_templates",
+                "all",
+                "--algs",
+                "true",
+                "--eval_fns",
+                "extract_subqueries",
+                "--query_dir",
+                "queries/joblight",
+                "--db_host",
+                "card-db"
+            ]
+        },
+        {
+            "name": "job-m/true",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/main.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--query_templates",
+                "all",
+                "--algs",
+                "true",
+                "--eval_fns",
+                "qerr,ppc,plancost",
+                "--query_dir",
+                "queries/jobm",
+                "--db_host",
+                "card-db"
+            ]
+        },
+        {
+            "name": "job-m/postgres",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/main.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--query_templates",
+                "all",
+                "--algs",
+                "postgres",
+                "--eval_fns",
+                "qerr,ppc,plancost",
+                "--query_dir",
+                "queries/jobm",
+                "--db_host",
+                "card-db"
+            ]
+        },
+        {
+            "name": "job-m/xgb",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/main.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--query_templates",
+                "all",
+                "--algs",
+                "xgb",
+                "--eval_fns",
+                "qerr,ppc,plancost",
+                "--query_dir",
+                "queries/jobm",
+                "--db_host",
+                "card-db"
+            ]
+        }
+    ]
+}

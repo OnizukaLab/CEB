@@ -1,10 +1,11 @@
-numpy
-pandas
+setuptools
+numpy==1.19.3
+pandas==1.2.4
 klepto
 networkx
 sqlparse
 moz_sql_parser
-psycopg2-binary
+psycopg2-binary==2.8.5
 matplotlib
 grandalf
 xgboost
