@@ -33,6 +33,70 @@
             ]
         },
         {
+            "name": "job-light/postgres",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/main.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--query_templates",
+                "all",
+                "--algs",
+                "postgres",
+                "--eval_fns",
+                "qerr,ppc,plancost",
+                "--query_dir",
+                "queries/joblight",
+                "--db_host",
+                "card-db"
+            ]
+        },
+        {
+            "name": "job-light/saved-mlp-ur",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/main.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--query_templates",
+                "all",
+                "--algs",
+                "saved",
+                "--eval_fns",
+                "qerr,ppc,plancost",
+                "--query_dir",
+                "queries/joblight",
+                "--db_host",
+                "card-db",
+                "--model_dir",
+                "results/mlp-ur/all_joblight"
+            ]
+        },
+        {
+            "name": "job-light/saved-mlp-ur-jl",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/main.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--query_templates",
+                "all",
+                "--algs",
+                "saved",
+                "--eval_fns",
+                "qerr,ppc,plancost",
+                "--query_dir",
+                "queries/joblight",
+                "--db_host",
+                "card-db",
+                "--model_dir",
+                "results/mlp-ur-jl/all_joblight"
+            ]
+        },
+        {
             "name": "job-light/ext",
             "type": "python",
             "request": "launch",
@@ -90,6 +154,28 @@
                 "queries/jobm",
                 "--db_host",
                 "card-db"
+            ]
+        },
+        {
+            "name": "job-m/saved-postgres",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/main.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--query_templates",
+                "all",
+                "--algs",
+                "saved",
+                "--eval_fns",
+                "qerr,ppc,plancost",
+                "--query_dir",
+                "queries/jobm",
+                "--db_host",
+                "card-db",
+                "--model_dir",
+                "results/Postgres/all_jobm"
             ]
         },
         {

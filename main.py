@@ -25,7 +25,7 @@ def eval_alg(alg, eval_funcs, qreps, samples_type):
     start = time.time()
     alg_name = alg.__str__()
     exp_name = alg.get_exp_name()
-    ests = alg.test(qreps)
+    ests = alg.test(qreps, samples_type=samples_type)
 
     for efunc in eval_funcs:
         rdir = None
@@ -357,6 +357,8 @@ def read_flags():
             required=False, default=0.0001)
     parser.add_argument("--loss_func_name", type=str, required=False,
             default="mse")
+
+    parser.add_argument("--model_dir", type=str, required=False)
 
     return parser.parse_args()
 

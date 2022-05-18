@@ -6,6 +6,8 @@ import pandas as pd
 import json
 import sys
 import random
+import pickle
+import glob
 import torch
 from collections import defaultdict
 
@@ -83,9 +85,18 @@ class SavedPreds(CardinalityEstimationAlg):
         self.model_dir = kwargs["model_dir"]
         self.max_epochs = 0
 
-    def train(self, training_samples, **kwargs):
+        # saved_preds: Dict[name, Dict[node, cardinality]]
+        # train.pkl: {"1.pkl": {"ct mc": 1234, "ct": 10}, "2.pkl": {"mc t": 123, "t": 2}}
+        # test.pkl:  {"3.pkl": {"it t": 12, "it": 3}}
         assert os.path.exists(self.model_dir)
-        self.saved_preds = load_object_gzip(self.model_dir + "/preds.pkl")
+        self.saved_preds = {}
+        for pkl_file_path in glob.glob(os.path.join(self.model_dir, "*.pkl")):
+            with open(pkl_file_path, "rb") as f:
+                # Note: We expect no duplicate names over pkl files
+                self.saved_preds.update(pickle.load(f))
+
+    def train(self, training_samples, **kwargs):
+        pass
 
     def test(self, test_samples, **kwargs):
         '''
@@ -96,12 +107,17 @@ class SavedPreds(CardinalityEstimationAlg):
         '''
         preds = []
         for sample in test_samples:
-            assert sample["name"] in self.saved_preds
-            preds.append(self.saved_preds[sample["name"]])
+            pred_dict = {}
+            nodes = list(sample["subset_graph"].nodes())
+            if SOURCE_NODE in nodes:
+                nodes.remove(SOURCE_NODE)
+            for alias_key in nodes:
+                pred_dict[(alias_key)] = self.saved_preds[sample["name"]][" ".join(alias_key)]
+            preds.append(pred_dict)
         return preds
 
     def get_exp_name(self):
-        old_name = os.path.basename(self.model_dir)
+        old_name = self.model_dir[8:].replace("/", "-")
         name = "SavedRun-" + old_name
         return name
 
@@ -121,19 +137,34 @@ class Postgres(CardinalityEstimationAlg):
     def test(self, test_samples, **kwargs):
         assert isinstance(test_samples[0], dict)
         preds = []
+        # preds_for_dump = {}
         for sample in test_samples:
             pred_dict = {}
+            # pred_dict_for_dump = {}
             nodes = list(sample["subset_graph"].nodes())
 
             for alias_key in nodes:
                 info = sample["subset_graph"].nodes()[alias_key]
                 true_card = info["cardinality"]["actual"]
-                if "expected" not in info["cardinality"]:
+                if "expected" in info["cardinality"]:
+                    est = info["cardinality"]["expected"]
+                elif "pg" in info["cardinality"]:
+                    est = info["cardinality"]["pg"]
+                else:
                     continue
-                est = info["cardinality"]["expected"]
                 pred_dict[(alias_key)] = est
+                # pred_dict_for_dump[" ".join(alias_key)] = est
 
             preds.append(pred_dict)
+            # preds_for_dump[sample["name"]] = pred_dict_for_dump
+        
+        # just for testing SavedPred
+        # dump_dir_path = os.path.join(
+        #     "results", self.get_exp_name(), test_samples[0]["template_name"])
+        # os.makedirs(dump_dir_path, exist_ok=True)
+        # with open(os.path.join(dump_dir_path, f"{kwargs['samples_type']}.pkl"), "wb") as f:
+        #     pickle.dump(preds_for_dump, f)
+
         return preds
 
     def get_exp_name(self):
@@ -146,7 +177,7 @@ class TrueCardinalities(CardinalityEstimationAlg):
     def __init__(self):
         pass
 
-    def test(self, test_samples):
+    def test(self, test_samples, **kwargs):
         assert isinstance(test_samples[0], dict)
         preds = []
         for sample in test_samples:
@@ -171,7 +202,7 @@ class TrueRandom(CardinalityEstimationAlg):
         # max percentage noise added / subtracted to true values
         self.max_noise = random.randint(1,500)
 
-    def test(self, test_samples):
+    def test(self, test_samples, **kwargs):
         # choose noise type
         assert isinstance(test_samples[0], dict)
         preds = []
@@ -199,7 +230,7 @@ class TrueRank(CardinalityEstimationAlg):
     def __init__(self):
         pass
 
-    def test(self, test_samples):
+    def test(self, test_samples, **kwargs):
         assert isinstance(test_samples[0], dict)
         preds = []
         for sample in test_samples:
@@ -237,7 +268,7 @@ class TrueRankTables(CardinalityEstimationAlg):
     def __init__(self):
         pass
 
-    def test(self, test_samples):
+    def test(self, test_samples, **kwargs):
         assert isinstance(test_samples[0], dict)
         preds = []
         for sample in test_samples:
@@ -274,7 +305,7 @@ class TrueRankTables(CardinalityEstimationAlg):
         return "true_rank_tables"
 
 class Random(CardinalityEstimationAlg):
-    def test(self, test_samples):
+    def test(self, test_samples, **kwargs):
         assert isinstance(test_samples[0], dict)
         preds = []
         for sample in test_samples:
@@ -349,7 +380,7 @@ class XGBoost(CardinalityEstimationAlg):
             exp_dir = os.path.join(self.result_dir, exp_name)
             self.xgb_model.save_model(exp_dir + "/xgb_model.json")
 
-    def test(self, test_samples):
+    def test(self, test_samples, **kwargs):
         X,Y = self.init_dataset(test_samples)
         pred = self.xgb_model.predict(X)
         return format_model_test_output(pred, test_samples, self.featurizer)
@@ -391,7 +422,7 @@ class RandomForest(CardinalityEstimationAlg):
                     max_depth = self.max_depth)
             self.model.fit(X, Y)
 
-    def test(self, test_samples):
+    def test(self, test_samples, **kwargs):
         X,Y = self.init_dataset(test_samples)
         pred = self.model.predict(X)
         # FIXME: why can't we just use get_query_estimates here?

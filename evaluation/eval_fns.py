@@ -322,10 +322,22 @@ class ExtractSubqueries(EvalFunc):
 
                 subqueries.append((
                     node_info["cardinality"]["actual"],
-                    query_representation.query.subplan_to_sql(qrep, node)))
+                    query_representation.query.subplan_to_sql(qrep, node),
+                    qrep["name"],
+                    " ".join(node)))
 
-        pd.DataFrame(subqueries, columns=["true_cardinality", "sql"]).to_csv(
-            f"{kwargs['db_name']}_{qreps[0]['template_name']}_{len(subqueries)}.csv", index=False, quoting=2)
-        print(f"saved {len(subqueries)}")
+
+        df = pd.DataFrame(subqueries, columns=["true_cardinality", "sql", "name", "node"])
+        file_path = os.path.join("external", f"{kwargs['db_name']}-{qreps[0]['template_name']}.csv")
+        if not os.path.exists(file_path):
+            df.to_csv(
+                file_path, index=False, quoting=2)
+            print(f"saved {len(subqueries)}(0+{len(subqueries)}) subqueries")
+        else:
+            prev_df = pd.read_csv(file_path)
+            prev_len = len(prev_df)
+            df.to_csv(
+                file_path, index=False, quoting=2, mode="a", header=False)
+            print(f"saved {prev_len+len(subqueries)}({prev_len}+{len(subqueries)}) subqueries")
 
         return np.zeros(len(qreps))
