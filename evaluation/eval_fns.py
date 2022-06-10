@@ -308,6 +308,9 @@ class SimplePlanCost(EvalFunc):
 
         pc = PlanCost(cost_model)
         costs, opt_costs = pc.compute_costs(qreps, preds, pool=pool)
+
+        self.save_logs(qreps, costs, **kwargs)
+
         pool.close()
         return costs
 

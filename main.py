@@ -36,7 +36,7 @@ def eval_alg(alg, eval_funcs, qreps, samples_type):
 
         errors = efunc.eval(qreps, ests, args=args, samples_type=samples_type,
                 result_dir=rdir, user = args.user, db_name = args.db_name,
-                db_host = args.db_host, port = args.port,
+                pwd = args.pwd, db_host = args.db_host, port = args.port,
                 num_processes = args.num_eval_processes,
                 alg_name = alg_name)
 

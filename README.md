@@ -218,7 +218,7 @@ python3 main.py --query_templates=all --algs=true --eval_fns=extract_subqueries 
 # Eval plan costs with estimated subqueries cardinality
 # IN: results/{estimator-dataset}/{benchmark}/*.pkl
 # OUT: results/SavedRun-{benchmark}
-python3 main.py --query_templates=all --algs=saved --eval_fns=qerr,ppc,plancost --query_dir=queries/joblight --db_host=card-db --model_dir=results/mlp-ur/all_joblight
+python3 main.py --query_templates=all --algs=saved --eval_fns=qerr,ppc,plancost --query_dir=queries/joblight --db_host=card-db --model_dir=results/mlp-ur-jl/all_joblight
 
 # Summarize ppc results over all the splits
 # IN: results/SavedRun-{benchmark}/PostgresPlanCost.csv
