@@ -30,6 +30,9 @@
                 "queries/joblight",
                 "--db_host",
                 "card-db"
+                // "--db_host=research.cu586imhksrl.ap-northeast-1.rds.amazonaws.com",
+                // "--user=postgres",
+                // "--pwd=postgres"
             ]
         },
         {
@@ -93,27 +96,7 @@
                 "--db_host",
                 "card-db",
                 "--model_dir",
-                "results/mlp-ur-jl/all_joblight"
-            ]
-        },
-        {
-            "name": "job-light/ext",
-            "type": "python",
-            "request": "launch",
-            "program": "${workspaceFolder}/main.py",
-            "console": "integratedTerminal",
-            "justMyCode": false,
-            "args": [
-                "--query_templates",
-                "all",
-                "--algs",
-                "true",
-                "--eval_fns",
-                "extract_subqueries",
-                "--query_dir",
-                "queries/joblight",
-                "--db_host",
-                "card-db"
+                "results/mlp-ur-jl/all_joblight/orig"
             ]
         },
         {
@@ -197,6 +180,46 @@
                 "--db_host",
                 "card-db"
             ]
-        }
+        },
+        {
+            "name": "extract_subqueries",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/main.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--query_templates",
+                "all",
+                "--algs",
+                "true",
+                "--eval_fns",
+                "extract_subqueries",
+                "--query_dir",
+                // "queries/joblight",
+                "queries/jobm",
+                "--db_host",
+                "card-db"
+            ]
+        },
+        {
+            "name": "debug/get_query_cardinalities",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/scripts/get_query_cardinalities.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--query_dir=queries/joblight/all_joblight",
+                "--card_type=pg",
+                "--db_host=card-db",
+                "--user=ceb",
+                "--pwd=password",
+                // need to set: cards["pg_rds"] = card or sth.
+                // "--db_host=research.cu586imhksrl.ap-northeast-1.rds.amazonaws.com",
+                // "--user=postgres",
+                // "--pwd=postgres"
+            ]
+        },
     ]
 }

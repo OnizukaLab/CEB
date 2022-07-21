@@ -1,3 +1,4 @@
+import re
 import time
 import numpy as np
 import pdb
@@ -117,7 +118,7 @@ class SavedPreds(CardinalityEstimationAlg):
         return preds
 
     def get_exp_name(self):
-        old_name = self.model_dir[8:].replace("/", "-")
+        old_name = re.sub(r"\/$", "", self.model_dir[8:]).replace("/", "-")
         name = "SavedRun-" + old_name
         return name
 
