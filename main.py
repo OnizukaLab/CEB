@@ -119,7 +119,7 @@ def get_query_fns():
                 random_state=args.diff_templates_seed)
 
     for qi,qdir in enumerate(fns):
-        if ".json" in qdir:
+        if ".json" in qdir or ".csv" in qdir or ".sql" in qdir:
             continue
 
         template_name = os.path.basename(qdir)

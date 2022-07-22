@@ -191,24 +191,28 @@ bash scripts/download_stack_workload.sh
 export PYTHONPATH="$(pwd)"
 
 # Prepare sql list
-# OUT: queries/joblight.sql
+# OUT: queries/jobm/imdb-job-m.sql
 # by-hand
+# e.g.,
+# pd.read_csv(<card_and_sql.csv>)["sql"].to_csv(<.sql>, header=False, index=False)
+# and then remove all quotes
 
-# Edit variables in scripts/sql_to_qrep.py
-# IN: queries/joblight.sql
-# OUT: queries/joblight/all_joblight/*.pkl
-python3 scripts/sql_to_qrep.py  # convert sql into pkl
+# Convert sql into CEB-format (pkl)
+# IN: queries/jobm/imdb-job-m.sql
+# OUT: queries/jobm/all_jobm/*.pkl
+# Edit variables in scripts/sql_to_qrep.py before run
+python3 scripts/sql_to_qrep.py
 
 # Add pg-estimated and actual cardinalities to query pkl files
-# IN: queries/joblight/all_joblight/*.pkl
-# OUT: queries/joblight/all_joblight/*.pkl (metadata added)
-python3 scripts/get_query_cardinalities.py --db_host=card-db --user=ceb --pwd=password --query_dir=queries/joblight/all_joblight --card_type=actual
-python3 scripts/get_query_cardinalities.py --db_host=card-db --user=ceb --pwd=password --query_dir=queries/joblight/all_joblight --card_type=pg
+# IN: queries/jobm/all_jobm/*.pkl
+# OUT: queries/jobm/all_jobm/*.pkl (metadata added)
+python3 scripts/get_query_cardinalities.py --db_host=card-db --user=ceb --pwd=password --query_dir=queries/jobm/all_jobm --card_type=actual --skip_zero_queries=0 # about 5000sec on JOB-m
+python3 scripts/get_query_cardinalities.py --db_host=card-db --user=ceb --pwd=password --query_dir=queries/jobm/all_jobm --card_type=pg --skip_zero_queries=0
 
 # Extract subqueries (for eval by other estimators)
-# IN: queries/joblight/all_joblight/*.pkl
+# IN: queries/jobm/all_jobm/*.pkl
 # OUT: external/{dataset}-{benchmark}.csv
-python3 main.py --query_templates=all --algs=true --eval_fns=extract_subqueries --query_dir=queries/joblight --db_host=card-db
+python3 main.py --query_templates=all --algs=true --eval_fns=extract_subqueries --query_dir=queries/jobm --db_host=card-db
 
 # Estimate subqueries' cardinality on each estimator
 # IN: external/{dataset}-{benchmark}.csv

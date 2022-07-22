@@ -4,8 +4,8 @@ from networkx.readwrite import json_graph
 from query_representation.utils import *
 from query_representation.query import *
 
-OUTPUT_DIR="./queries/joblight/all_joblight/"
-INPUT_FN = "./queries/joblight.sql"
+OUTPUT_DIR="./queries/jobm/all_jobm/"
+INPUT_FN = "./queries/jobm/imdb-job-m.sql"
 OUTPUT_FN_TMP = "{i}.sql"
 
 make_dir(OUTPUT_DIR)
