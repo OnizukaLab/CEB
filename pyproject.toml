@@ -1,4 +1,4 @@
-[tool.poetry]
+[project]
 name = "ceb"
 version = "0.1.0"
 description = ""
