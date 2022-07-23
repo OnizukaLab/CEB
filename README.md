@@ -227,7 +227,7 @@ python3 main.py --query_templates=all --algs=saved --eval_fns=qerr,ppc,plancost 
 # Summarize ppc results over all the splits
 # IN: results/SavedRun-{benchmark}/PostgresPlanCost.csv
 # OUT: stdout ([50%th, 90%th 95%th 99%th 100%th])
-python3 scripts/summarize_ppc.py SavedRun-mlp-ur-jl-all_joblight
+python3 scripts/summarize.py SavedRun-mlp-ur-jl-all_joblight job-light
 ```
 
 ### Python Requirements
