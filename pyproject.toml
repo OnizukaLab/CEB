@@ -1,25 +1,27 @@
+[tool.poetry]
+name = "ceb"
+version = "0.1.0"
+description = ""
+
 [project]
 name = "ceb"
 version = "0.1.0"
 description = ""
 authors = ["Ryuichi Ito <mail@sapphire.in.net>"]
-
-[tool.poetry.dependencies]
-python = ">=3.8,<3.11"
-numpy = "1.19.3"
-pandas = "1.2.4"
-torch = "1.11.0"
-klepto = "0.2.2"
-networkx = "2.8.4"
-sqlparse = "0.4.2"
-psycopg2-binary = "2.8.5"
-matplotlib = "3.5.2"
-grandalf = "0.7"
-xgboost = "1.6.1"
-scikit-learn = "1.1.1"
-moz-sql-parser = "4.40.21126"
-
-[tool.poetry.dev-dependencies]
+dependencies = [
+    "numpy==1.19.3",
+    "pandas==1.2.4",
+    "torch==1.11.0",
+    "klepto==0.2.2",
+    "networkx==2.8.4",
+    "sqlparse==0.4.2",
+    "psycopg2-binary==2.8.5",
+    "matplotlib==3.5.2",
+    "grandalf==0.7",
+    "xgboost==1.6.1",
+    "scikit-learn==1.1.1",
+    "moz-sql-parser==4.40.21126"
+]
 
 [build-system]
 requires = ["setuptools", "setuptools_scm"]
