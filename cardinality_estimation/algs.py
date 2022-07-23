@@ -83,18 +83,23 @@ def format_model_test_output(pred, samples, featurizer):
 class SavedPreds(CardinalityEstimationAlg):
     def __init__(self, *args, **kwargs):
         # TODO: set each of the kwargs as variables
-        self.model_dir = kwargs["model_dir"]
-        self.max_epochs = 0
+        self.model_dir = kwargs.get("model_dir", None)
+        self.file_path = kwargs.get("file_path", None)
 
         # saved_preds: Dict[name, Dict[node, cardinality]]
         # train.pkl: {"1.pkl": {"ct mc": 1234, "ct": 10}, "2.pkl": {"mc t": 123, "t": 2}}
         # test.pkl:  {"3.pkl": {"it t": 12, "it": 3}}
-        assert os.path.exists(self.model_dir)
+        assert (self.model_dir is not None and os.path.exists(self.model_dir)) or (
+            self.file_path is not None and os.path.exists(self.file_path))
         self.saved_preds = {}
-        for pkl_file_path in glob.glob(os.path.join(self.model_dir, "*.pkl")):
-            with open(pkl_file_path, "rb") as f:
-                # Note: We expect no duplicate names over pkl files
+        if self.file_path:
+            with open(self.file_path, "rb") as f:
                 self.saved_preds.update(pickle.load(f))
+        else:
+            for pkl_file_path in glob.glob(os.path.join(self.model_dir, "*.pkl")):
+                with open(pkl_file_path, "rb") as f:
+                    # Note: We expect no duplicate names over pkl files
+                    self.saved_preds.update(pickle.load(f))
 
     def train(self, training_samples, **kwargs):
         pass
