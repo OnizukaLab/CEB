@@ -24,3 +24,6 @@ moz-sql-parser = "4.40.21126"
 [build-system]
 requires = ["setuptools", "setuptools_scm"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["cardinality_estimation", "query_representation", "scripts", "evaluation", "query_gen"]
