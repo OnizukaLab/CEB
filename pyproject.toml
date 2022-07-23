@@ -22,5 +22,5 @@ moz-sql-parser = "4.40.21126"
 [tool.poetry.dev-dependencies]
 
 [build-system]
-requires = []
-build-backend = "poetry.core.masonry.api"
+requires = ["setuptools", "setuptools_scm"]
+build-backend = "setuptools.build_meta"
