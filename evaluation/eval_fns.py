@@ -113,6 +113,12 @@ class QError(EvalFunc):
 
         ytrue, yhat = _get_all_cardinalities(qreps, preds)
         assert len(ytrue) == len(yhat)
+        if 0 in ytrue:
+            print("warn: 0 found in ytrue (replaced w/ 1)")
+            ytrue[ytrue==0] = 1
+        if 0 in yhat:
+            print("warn: 0 found in yhat (replaced w/ 1)")
+            yhat[yhat==0] = 1
         assert 0.00 not in ytrue
         assert 0.00 not in yhat
 

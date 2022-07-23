@@ -140,6 +140,28 @@
             ]
         },
         {
+            "name": "job-m/saved-mlp-pj",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/main.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--query_templates",
+                "all",
+                "--algs",
+                "saved",
+                "--eval_fns",
+                "qerr,ppc,plancost",
+                "--query_dir",
+                "queries/jobm",
+                "--db_host",
+                "card-db",
+                "--model_dir",
+                "results/mlp-pj/imdb/job-m",
+            ]
+        },
+        {
             "name": "job-m/saved-postgres",
             "type": "python",
             "request": "launch",
@@ -182,25 +204,15 @@
             ]
         },
         {
-            "name": "debug/extract_subqueries",
+            "name": "debug/sql_to_qrep",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/main.py",
+            "program": "${workspaceFolder}/scripts/sql_to_qrep.py",
             "console": "integratedTerminal",
             "justMyCode": false,
-            "args": [
-                "--query_templates",
-                "all",
-                "--algs",
-                "true",
-                "--eval_fns",
-                "extract_subqueries",
-                "--query_dir",
-                // "queries/joblight",
-                "queries/jobm",
-                "--db_host",
-                "card-db"
-            ]
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}",
+            }
         },
         {
             "name": "debug/get_query_cardinalities",
@@ -222,6 +234,27 @@
                 // "--db_host=research.cu586imhksrl.ap-northeast-1.rds.amazonaws.com",
                 // "--user=postgres",
                 // "--pwd=postgres"
+            ]
+        },
+        {
+            "name": "debug/extract_subqueries",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/main.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--query_templates",
+                "all",
+                "--algs",
+                "true",
+                "--eval_fns",
+                "extract_subqueries",
+                "--query_dir",
+                // "queries/joblight",
+                "queries/jobm",
+                "--db_host",
+                "card-db"
             ]
         },
     ]
