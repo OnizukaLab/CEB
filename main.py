@@ -161,6 +161,10 @@ def get_query_fns():
             cur_train_fns, cur_test_fns = train_test_split(qfns,
                     test_size=args.test_size,
                     random_state=args.seed)
+        elif args.train_test_split_kind == "no_split":
+            cur_train_fns = []
+            cur_val_fns = []
+            cur_test_fns = qfns
 
         train_qfns += cur_train_fns
         val_qfns += cur_val_fns
@@ -274,7 +278,8 @@ def main():
     for alg in algs:
         alg.train(trainqs, valqs=valqs, testqs=testqs,
                 featurizer=featurizer, result_dir=args.result_dir)
-        eval_alg(alg, eval_fns, trainqs, "train")
+        if len(trainqs) > 0:
+            eval_alg(alg, eval_fns, trainqs, "train")
 
         if len(valqs) > 0:
             eval_alg(alg, eval_fns, valqs, "val")
@@ -358,7 +363,7 @@ def read_flags():
     parser.add_argument("--loss_func_name", type=str, required=False,
             default="mse")
 
-    parser.add_argument("--model_dir", type=str, required=False)
+    parser.add_argument("--model_dir", type=str, required=False, help="for algs=saved")
 
     return parser.parse_args()
 

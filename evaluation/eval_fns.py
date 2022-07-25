@@ -26,6 +26,8 @@ def get_eval_fn(loss_name):
         return RelativeError()
     elif loss_name == "ppc":
         return PostgresPlanCost()
+    elif loss_name == "perr":
+        return PError()
     elif loss_name == "plancost":
         return SimplePlanCost()
     elif loss_name == "extract_subqueries":
@@ -49,12 +51,21 @@ class EvalFunc():
         else:
             samples_type = ""
 
+        if "keys" in kwargs:
+            nested_names = [[(f"{q['name'][:-4]},{' '.join(k)}", q["name"], " ".join(k)) for k in kwargs["keys"][i]] for i, q in enumerate(qreps)]
+            names = pd.DataFrame(sum(nested_names, []), columns=["id", "qname", "node"])
+        elif len(qreps) == len(errors):
+            names = pd.DataFrame([(q["name"][:-4], q["name"]) for q in qreps], columns=["id", "qname"])
+        else:
+            names = {}
+
         resfn = os.path.join(result_dir, self.__str__() + ".csv")
-        res = pd.DataFrame(data=errors, columns=["errors"])
+        res = pd.DataFrame(dict(names, **{"errors": errors}))
         res["samples_type"] = samples_type
         # TODO: add other data?
         if os.path.exists(resfn):
-            res.to_csv(resfn, mode="a",header=False)
+            print(f"warn: {resfn} already exists. Use appending mode.")
+            res.to_csv(resfn, mode="a", header=False)
         else:
             res.to_csv(resfn, header=True)
 
@@ -91,10 +102,12 @@ def fix_query(query):
 def _get_all_cardinalities(qreps, preds):
     ytrue = []
     yhat = []
+    all_keys = []
     for i, pred_subsets in enumerate(preds):
         qrep = qreps[i]["subset_graph"].nodes()
         keys = list(pred_subsets.keys())
         keys.sort()
+        all_keys.append(keys)
         for alias in keys:
             pred = pred_subsets[alias]
             actual = qrep[alias]["cardinality"]["actual"]
@@ -102,7 +115,7 @@ def _get_all_cardinalities(qreps, preds):
                 actual += 1
             ytrue.append(float(actual))
             yhat.append(float(pred))
-    return np.array(ytrue), np.array(yhat)
+    return np.array(ytrue), np.array(yhat), all_keys
 
 class QError(EvalFunc):
     def eval(self, qreps, preds, **kwargs):
@@ -111,7 +124,7 @@ class QError(EvalFunc):
         assert len(preds) == len(qreps)
         assert isinstance(preds[0], dict)
 
-        ytrue, yhat = _get_all_cardinalities(qreps, preds)
+        ytrue, yhat, keys = _get_all_cardinalities(qreps, preds)
         assert len(ytrue) == len(yhat)
         if 0 in ytrue:
             print("warn: 0 found in ytrue (replaced w/ 1)")
@@ -124,7 +137,7 @@ class QError(EvalFunc):
 
         errors = np.maximum((ytrue / yhat), (yhat / ytrue))
 
-        self.save_logs(qreps, errors, **kwargs)
+        self.save_logs(qreps, errors, keys=keys, **kwargs)
 
         return errors
 
@@ -135,8 +148,11 @@ class AbsError(EvalFunc):
         assert len(preds) == len(qreps)
         assert isinstance(preds[0], dict)
 
-        ytrue, yhat = _get_all_cardinalities(qreps, preds)
+        ytrue, yhat, keys = _get_all_cardinalities(qreps, preds)
         errors = np.abs(yhat - ytrue)
+
+        self.save_logs(qreps, errors, keys=keys, **kwargs)
+
         return errors
 
 class RelativeError(EvalFunc):
@@ -145,12 +161,15 @@ class RelativeError(EvalFunc):
         '''
         assert len(preds) == len(qreps)
         assert isinstance(preds[0], dict)
-        ytrue, yhat = _get_all_cardinalities(qreps, preds)
+        ytrue, yhat, keys = _get_all_cardinalities(qreps, preds)
         # TODO: may want to choose a minimum estimate
         # epsilons = np.array([1]*len(yhat))
         # ytrue = np.maximum(ytrue, epsilons)
 
         errors = np.abs(ytrue - yhat) / ytrue
+
+        self.save_logs(qreps, errors, keys=keys, **kwargs)
+
         return errors
 
 class PostgresPlanCost(EvalFunc):
@@ -184,7 +203,7 @@ class PostgresPlanCost(EvalFunc):
         if os.path.exists(costs_fn):
             costs_df = pd.read_csv(costs_fn)
         else:
-            columns = ["qname", "join_order", "exec_sql", "cost"]
+            columns = ["id", "qname", "join_order", "exec_sql", "cost"]
             costs_df = pd.DataFrame(columns=columns)
 
         cur_costs = defaultdict(list)
@@ -193,6 +212,7 @@ class PostgresPlanCost(EvalFunc):
             # sql_key = str(deterministic_hash(qrep["sql"]))
             # cur_costs["sql_key"].append(sql_key)
             qname = os.path.basename(qrep["name"])
+            cur_costs["id"].append(qname[:-4])
             cur_costs["qname"].append(qname)
 
             joinorder = get_leading_hint(qrep["join_graph"], plans[i])
@@ -299,6 +319,79 @@ class PostgresPlanCost(EvalFunc):
         if pool is not None:
             pool.close()
         return costs
+
+class PError(EvalFunc):
+    def eval(self, qreps, preds, user="imdb",pwd="password",
+            db_name="imdb", db_host="localhost", port=5432, num_processes=-1,
+            cost_model="cm1", **kwargs):
+        ''''
+        @kwargs:
+            cost_model: this is just a convenient key to specify the PostgreSQL
+            configuration to use. You can implement new versions in the function
+            set_cost_model. e.g., cm1: disable materialization and parallelism, and
+            enable all other flags.
+        @ret:
+            pg_costs
+            Further, the following are saved in the result logs
+                pg_costs:
+                pg_plans: explains used to get the pg costs
+                pg_sqls: sqls to execute
+        '''
+        assert isinstance(qreps, list)
+        assert isinstance(preds, list)
+        assert isinstance(qreps[0], dict)
+
+        if num_processes == -1:
+            pool = mp.Pool(int(mp.cpu_count()))
+        elif num_processes == -2:
+            pool = None
+        else:
+            pool = mp.Pool(num_processes)
+
+        ppc = PPC(cost_model, user, pwd, db_host,
+                port, db_name)
+
+        est_cardinalities = []
+        true_cardinalities = []
+        sqls = []
+        join_graphs = []
+
+        for i, qrep in enumerate(qreps):
+            sqls.append(qrep["sql"])
+            join_graphs.append(qrep["join_graph"])
+            ests = {}
+            trues = {}
+            predq = preds[i]
+            for node, node_info in qrep["subset_graph"].nodes().items():
+                if node == SOURCE_NODE:
+                    continue
+
+                est_card = predq[node]
+                alias_key = ' '.join(node)
+                trues[alias_key] = node_info["cardinality"]["actual"]
+                if est_card == 0:
+                    est_card += 1
+                ests[alias_key] = est_card
+            est_cardinalities.append(ests)
+            true_cardinalities.append(trues)
+
+        # some edge cases to handle to get the qreps to work in the PostgreSQL
+        for i,sql in enumerate(sqls):
+            sqls[i] = fix_query(sql)
+
+        costs, opt_costs, plans, sqls = \
+                    ppc.compute_costs(sqls, join_graphs,
+                            true_cardinalities, est_cardinalities,
+                            num_processes=num_processes,
+                            pool=pool)
+        p_errs = costs / opt_costs
+
+        self.save_logs(qreps, p_errs, **kwargs)
+
+        if pool is not None:
+            pool.close()
+        
+        return p_errs
 
 class SimplePlanCost(EvalFunc):
     def eval(self, qreps, preds, cost_model="C",

@@ -25,9 +25,11 @@
                 "--algs",
                 "true",
                 "--eval_fns",
-                "qerr,ppc,plancost",
+                "qerr,ppc,plancost,perr",
                 "--query_dir",
                 "queries/joblight",
+                "--train_test_split_kind",
+                "no_split",
                 "--db_host",
                 "card-db"
                 // "--db_host=research.cu586imhksrl.ap-northeast-1.rds.amazonaws.com",
@@ -51,8 +53,58 @@
                 "qerr,ppc,plancost",
                 "--query_dir",
                 "queries/joblight",
+                "--train_test_split_kind",
+                "no_split",
                 "--db_host",
                 "card-db"
+            ]
+        },
+        {
+            "name": "job-light/saved-mlp-pj",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/main.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--query_templates",
+                "all",
+                "--algs",
+                "saved",
+                "--eval_fns",
+                "qerr,ppc,plancost,perr",
+                "--query_dir",
+                "queries/joblight",
+                "--db_host",
+                "card-db",
+                "--model_dir",
+                "results/mlp-pj/imdb/job-light",
+                "--train_test_split_kind",
+                "no_split"
+            ]
+        },
+        {
+            "name": "job-light/saved-mlp-pj-jl",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/main.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--query_templates",
+                "all",
+                "--algs",
+                "saved",
+                "--eval_fns",
+                "qerr,ppc,plancost,perr",
+                "--query_dir",
+                "queries/joblight",
+                "--db_host",
+                "card-db",
+                "--model_dir",
+                "results/mlp-pj/imdb-jl/job-light",
+                "--train_test_split_kind",
+                "no_split"
             ]
         },
         {
@@ -74,7 +126,9 @@
                 "--db_host",
                 "card-db",
                 "--model_dir",
-                "results/mlp-ur/all_joblight"
+                "results/mlp-ur/all_joblight",
+                "--train_test_split_kind",
+                "no_split"
             ]
         },
         {
@@ -96,7 +150,9 @@
                 "--db_host",
                 "card-db",
                 "--model_dir",
-                "results/mlp-ur-jl/all_joblight/orig"
+                "results/mlp-ur-jl/all_joblight/orig",
+                "--train_test_split_kind",
+                "no_split",
             ]
         },
         {
@@ -116,7 +172,9 @@
                 "--query_dir",
                 "queries/jobm",
                 "--db_host",
-                "card-db"
+                "card-db",
+                "--train_test_split_kind",
+                "no_split",
             ]
         },
         {
@@ -136,7 +194,9 @@
                 "--query_dir",
                 "queries/jobm",
                 "--db_host",
-                "card-db"
+                "card-db",
+                "--train_test_split_kind",
+                "no_split",
             ]
         },
         {
@@ -159,6 +219,8 @@
                 "card-db",
                 "--model_dir",
                 "results/mlp-pj/imdb/job-m",
+                "--train_test_split_kind",
+                "no_split",
             ]
         },
         {
@@ -180,7 +242,9 @@
                 "--db_host",
                 "card-db",
                 "--model_dir",
-                "results/Postgres/all_jobm"
+                "results/Postgres/all_jobm",
+                "--train_test_split_kind",
+                "no_split",
             ]
         },
         {
@@ -200,7 +264,7 @@
                 "--query_dir",
                 "queries/jobm",
                 "--db_host",
-                "card-db"
+                "card-db",
             ]
         },
         {
@@ -212,7 +276,11 @@
             "justMyCode": false,
             "env": {
                 "PYTHONPATH": "${workspaceFolder}",
-            }
+            },
+            "args": [
+                "queries/jobm/imdb-job-m.sql",
+                "queries/jobm/all_jobm"
+            ]
         },
         {
             "name": "debug/get_query_cardinalities",

@@ -221,12 +221,7 @@ python3 main.py --query_templates=all --algs=true --eval_fns=extract_subqueries 
 # Eval plan costs with estimated subqueries cardinality
 # IN: results/{estimator-dataset}/{benchmark}/*.pkl
 # OUT: results/SavedRun-{benchmark}
-python3 main.py --query_templates=all --algs=saved --eval_fns=qerr,ppc,plancost --query_dir=queries/jobm --db_host=card-db --model_dir=results/mlp-pj/imdb/job-m
-
-# Summarize ppc results over all the splits
-# IN: results/SavedRun-{benchmark}/PostgresPlanCost.csv
-# OUT: stdout ([50%th, 90%th 95%th 99%th 100%th])
-python3 scripts/summarize.py SavedRun-mlp-pj-imdb-job-m job-m
+python3 main.py --query_templates=all --algs=saved --eval_fns=qerr,ppc,plancost,perr --query_dir=queries/jobm --db_host=card-db --model_dir=results/mlp-pj/imdb/job-m --train_test_split_kind=no_split
 ```
 
 ### Python Requirements
