@@ -1,6 +1,7 @@
 FROM nvidia/cuda:10.2-cudnn7-devel-ubuntu18.04
 
-WORKDIR /workspaces/cardest
+WORKDIR /workspaces/CEB
+ENV PYTHONPATH=/workspaces/CEB
 
 RUN mv /etc/apt/sources.list.d /etc/apt/_sources.list.d \
  && apt update \

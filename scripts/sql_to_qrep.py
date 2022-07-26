@@ -1,5 +1,6 @@
 import os
 import sys
+import pandas as pd
 from networkx.readwrite import json_graph
 from query_representation.utils import *
 from query_representation.query import *
@@ -8,13 +9,22 @@ from query_representation.query import *
 def sql_to_qrep(input_file_path: str, output_dir_path: str):
     os.makedirs(output_dir_path, exist_ok=True)
 
-    with open(input_file_path, "r") as f:
-        data = f.read()
+    if input_file_path.endswith(".sql"):
+        with open(input_file_path, "r") as f:
+            data = f.read()
+        queries = data.split(";")
+    elif input_file_path.endswith(".csv"):
+        queries = pd.read_csv(input_file_path)["sql"]
+    else:
+        raise ValueError("Input file should be ;-separated sql or csv with sql column")
 
-    queries = data.split(";")
     for i, sql in enumerate(queries):
-        output_fn = output_dir_path + str(i+1) + ".pkl"
-        if "SELECT" not in sql.lower():
+        output_fn = os.path.join(output_dir_path, f"{i+1}.pkl")
+        if os.path.exists(output_fn):
+            print(f"Skip q{i+1}: already exists")
+            continue
+        if "SELECT" not in sql.upper():
+            print(f"Skip q{i+1}: not select query")
             continue
 
         qrep = parse_sql(sql, None, None, None, None, None,

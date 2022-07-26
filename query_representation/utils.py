@@ -477,7 +477,7 @@ def extract_from_clause(query):
     '''
     def handle_table(identifier):
         table_name = identifier.get_real_name()
-        alias = identifier.get_alias().lower()
+        alias = identifier.get_alias()
         tables.append(table_name)
         if alias is not None:
             from_clause = ALIAS_FORMAT.format(TABLE = table_name,
