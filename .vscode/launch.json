@@ -278,8 +278,10 @@
                 "PYTHONPATH": "${workspaceFolder}",
             },
             "args": [
-                "queries/jobm/imdb-job-m.sql",
-                "queries/jobm/all_jobm"
+                // "queries/jobm/imdb-job-m.sql",
+                // "queries/jobm/all_jobm"
+                "queries/50tbls_g3_max10attrs_max1000000rows_0-synthetic1000/50tbls_g3_max10attrs_max1000000rows_0-synthetic1000.csv",
+                "queries/50tbls_g3_max10attrs_max1000000rows_0-synthetic1000/all_50tbls_g3_max10attrs_max1000000rows_0-synthetic1000"
             ]
         },
         {
@@ -291,7 +293,9 @@
             "justMyCode": false,
             "args": [
                 // "--query_dir=queries/joblight/all_joblight",
-                "--query_dir=queries/jobm/all_jobm",
+                // "--query_dir=queries/jobm/all_jobm",
+                "--query_dir=queries/50tbls_g3_max10attrs_max1000000rows_0-synthetic1000/all_50tbls_g3_max10attrs_max1000000rows_0-synthetic1000",
+                "--db_name=synthetic_50tbls_g3_max10attrs_max1000000rows_0",
                 "--db_host=card-db",
                 "--user=ceb",
                 "--pwd=password",

@@ -205,8 +205,8 @@ python3 scripts/sql_to_qrep.py queries/jobm/imdb-job-m.sql queries/jobm/all_jobm
 # Add pg-estimated and actual cardinalities to query pkl files
 # IN: queries/jobm/all_jobm/*.pkl
 # OUT: queries/jobm/all_jobm/*.pkl (metadata added)
-python3 scripts/get_query_cardinalities.py --db_host=card-db --user=ceb --pwd=password --query_dir=queries/jobm/all_jobm --card_type=actual --skip_zero_queries=0 # about 5000sec on JOB-m
-python3 scripts/get_query_cardinalities.py --db_host=card-db --user=ceb --pwd=password --query_dir=queries/jobm/all_jobm --card_type=pg --skip_zero_queries=0
+python3 scripts/get_query_cardinalities.py --db_host=card-db --user=ceb --pwd=password --query_dir=queries/jobm/all_jobm --card_type=actual --skip_zero_queries=0 --db_name=imdb # about 5000sec on JOB-m
+python3 scripts/get_query_cardinalities.py --db_host=card-db --user=ceb --pwd=password --query_dir=queries/jobm/all_jobm --card_type=pg --skip_zero_queries=0 --db_name=imdb
 
 # Extract subqueries (for eval by other estimators)
 # IN: queries/jobm/all_jobm/*.pkl

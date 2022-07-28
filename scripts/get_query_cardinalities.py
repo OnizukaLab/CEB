@@ -124,7 +124,7 @@ def is_cross_join(sg):
     # still behaves like a cross-join. Check the appendix of the Flow-Loss
     # paper for more details
     for node, data in sg2.nodes(data=True):
-        if data["real_name"] == "site":
+        if "real_name" in data and data["real_name"] == "site":
             to_remove.append(node)
 
     for node in to_remove:
@@ -220,7 +220,7 @@ def get_cardinality(qrep, card_type, key_name, db_host, db_name, user, pwd,
 
     node_list = list(qrep["subset_graph"].nodes())
     node_list.sort(reverse=True, key = lambda x: len(x))
-    if args.db_name == "so":
+    if args.db_name == "so" or args.db_name.startswith("synthetic_"):
         source_node = tuple(["SOURCE"])
         if source_node in node_list:
             node_list.remove(source_node)

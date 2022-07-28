@@ -14,7 +14,7 @@ def sql_to_qrep(input_file_path: str, output_dir_path: str):
             data = f.read()
         queries = data.split(";")
     elif input_file_path.endswith(".csv"):
-        queries = pd.read_csv(input_file_path)["sql"]
+        queries = pd.read_csv(input_file_path)["sql"].str.strip().str.replace(";$", "", regex=True)
     else:
         raise ValueError("Input file should be ;-separated sql or csv with sql column")
 
