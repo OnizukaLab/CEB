@@ -190,7 +190,6 @@ def get_cardinality(qrep, card_type, key_name, db_host, db_name, user, pwd,
     updates qrep's fields with the needed cardinality estimates, and returns
     the qrep.
     '''
-    print("get cardinality!")
     if key_name is None:
         key_name = card_type
 
@@ -204,9 +203,6 @@ def get_cardinality(qrep, card_type, key_name, db_host, db_name, user, pwd,
                 password=pwd, database=db_name)
 
         cursor = con.cursor()
-
-    if idx % 10 == 0:
-        print("query: ", idx)
 
     # load the cache for few types
     if card_type in CACHE_CARD_TYPES:
@@ -336,7 +332,7 @@ def get_cardinality(qrep, card_type, key_name, db_host, db_name, user, pwd,
 
             exec_time = time.time() - start
             if exec_time > CACHE_TIMEOUT:
-                print(exec_time)
+                # print(exec_time)
                 sql_cache.archive[hash_sql] = card
             cards[key_name] = card
             execs[key_name] = exec_time
@@ -373,16 +369,16 @@ def get_cardinality(qrep, card_type, key_name, db_host, db_name, user, pwd,
             assert False
 
     if card_type == "actual":
-        print("total: {}, timeout: {}, existing: {}, found in cache: {}".format(\
-                len(qrep["subset_graph"].nodes()), num_timeout, existing, found_in_cache))
-        # print("site cj: ", site_cj)
-        if len(query_exec_times) != 0:
-            print("avg exec time: ", sum(query_exec_times) / len(query_exec_times))
+        if len(qrep["subset_graph"].nodes()) != existing:
+            print("fin q{}: total: {}, timeout: {}, existing: {}, found in cache: {}, avg exec time: {:.3f}".format(\
+                    idx, len(qrep["subset_graph"].nodes()), num_timeout, existing, found_in_cache,
+                    (sum(query_exec_times) / len(query_exec_times) if len(query_exec_times) > 0 else -1)))
+        else:
+            print(f"fin: q{idx} (already added)")
 
     if fn is not None:
         # update_qrep(qrep)
         save_qrep(fn, qrep)
-        print("updated sql rep!")
 
     sys.stdout.flush()
     return qrep
