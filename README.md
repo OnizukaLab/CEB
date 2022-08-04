@@ -67,10 +67,10 @@ We use docker to install and configure PostgreSQL, and setup the relevant databa
 cd docker
 export LCARD_USER=ceb
 export LCARD_PORT=5432
-sudo docker build --build-arg LCARD_USER=${LCARD_USER} -t pg12 .
-sudo docker run -itd --shm-size=1g --name card-db -p ${LCARD_PORT}:5432 -d pg12
-sudo docker restart card-db
-sudo docker exec -it card-db /imdb_setup.sh
+docker build --build-arg LCARD_USER=${LCARD_USER} -t pg12 .
+docker run -itd --shm-size=1g --network ceb --name card-db -p ${LCARD_PORT}:5432 -d pg12
+docker restart card-db
+docker exec -it card-db /imdb_setup.sh
 ```
 
 Note: Depending on the settings of your docker instance, you may not require sudo in the above commands. Also, in the docker run command, you may want to choose the --shm-size parameter depending on your requirements.

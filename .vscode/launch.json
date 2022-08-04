@@ -322,11 +322,16 @@
                 "true",
                 "--eval_fns",
                 "extract_subqueries",
+                "--train_test_split_kind",
+                "no_split",
                 "--query_dir",
                 // "queries/joblight",
-                "queries/jobm",
+                // "queries/jobm",
+                "queries/50tbls_g3_max10attrs_max1000000rows_0-synthetic1000",
                 "--db_host",
-                "card-db"
+                "card-db",
+                "--db_name",
+                "synthetic_50tbls_g3_max10attrs_max1000000rows_0",
             ]
         },
     ]
