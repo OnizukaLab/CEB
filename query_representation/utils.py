@@ -181,7 +181,7 @@ def extract_aliases(plan, jg=None):
         assert plan["Node Type"] == "Bitmap Heap Scan" or "Plans" not in plan
         if jg:
             alias = plan["Alias"]
-            real_name = jg.nodes[alias]["real_name"]
+            real_name = jg.nodes[alias].get("real_name", alias)
             # yield f"{real_name} as {alias}"
             yield "{} as {}".format(real_name, alias)
         else:
