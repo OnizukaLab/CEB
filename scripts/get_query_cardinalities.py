@@ -307,7 +307,10 @@ def get_cardinality(qrep, card_type, key_name, db_host, db_name, user, pwd,
 
             if hash_sql in sql_cache.archive \
                     and not DEBUG_CHECK_TIMES:
-                card = sql_cache.archive[hash_sql]
+                try:
+                    card = sql_cache.archive[hash_sql]
+                except:
+                    print(f"maybe broken: {fn}")
                 found_in_cache += 1
                 cards[key_name] = card
                 continue
