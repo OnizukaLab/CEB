@@ -12,6 +12,7 @@ import psycopg2 as pg
 import shelve
 import pdb
 import os
+import re
 import errno
 import klepto
 import getpass
@@ -146,7 +147,7 @@ def path_to_join_order(path):
         remaining -= diff
     yield remaining
 
-def order_to_from_clause(join_graph, join_order, alias_mapping):
+def order_to_from_clause(join_graph, join_order, alias_mapping, quote_pred=False):
     clauses = []
     for rels in join_order:
         if len(rels) > 1:
@@ -154,7 +155,7 @@ def order_to_from_clause(join_graph, join_order, alias_mapping):
             # no way to specify that the optimizer should control only these
             # bottom-level joins.
             sg = join_graph.subgraph(rels)
-            sql = nx_graph_to_query(sg)
+            sql = nx_graph_to_query(sg, quote_pred = quote_pred)
             con = pg.connect(user="ubuntu", host="localhost", database="imdb")
             cursor = con.cursor()
             # cursor.execute(f"explain (format json) {sql}")
@@ -217,7 +218,7 @@ def analyze_plan(plan):
 functions copied over from pari's util files
 '''
 
-def nodes_to_sql(nodes, join_graph):
+def nodes_to_sql(nodes, join_graph, quote_pred=False):
     alias_mapping = {}
     for node_set in nodes:
         for node in node_set:
@@ -228,10 +229,10 @@ def nodes_to_sql(nodes, join_graph):
     subg = join_graph.subgraph(alias_mapping.keys())
     assert nx.is_connected(subg)
 
-    sql_str = nx_graph_to_query(subg, from_clause=from_clause)
+    sql_str = nx_graph_to_query(subg, from_clause=from_clause, quote_pred=quote_pred)
     return sql_str
 
-def nx_graph_to_query(G, from_clause=None):
+def nx_graph_to_query(G, from_clause=None, quote_pred=False):
     froms = []
     conds = []
     for nd in G.nodes(data=True):
@@ -244,6 +245,8 @@ def nx_graph_to_query(G, from_clause=None):
             froms.append(node)
 
         for pred in data["predicates"]:
+            if quote_pred:
+                pred = re.sub(r"^(\s*[\w\.]+)", r'"\1"', pred)
             if pred not in conds:
                 conds.append(pred)
 

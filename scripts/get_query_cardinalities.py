@@ -98,6 +98,7 @@ def read_flags():
             required=False, default=None)
     parser.add_argument("--db_year", type=int,
             required=False, default=None)
+    parser.add_argument("--quote_pred", action="store_true")
 
     return parser.parse_args()
 
@@ -185,7 +186,7 @@ def get_cardinality_wj(qrep, card_type, key_name, db_host, db_name, user, pwd,
 
 def get_cardinality(qrep, card_type, key_name, db_host, db_name, user, pwd,
         port, true_timeout, pg_total, cache_dir, fn, wj_walk_timeout, idx,
-        sampling_percentage, sampling_type, skip_zero_queries, db_year):
+        sampling_percentage, sampling_type, skip_zero_queries, db_year, quote_pred=False):
     '''
     updates qrep's fields with the needed cardinality estimates, and returns
     the qrep.
@@ -240,7 +241,7 @@ def get_cardinality(qrep, card_type, key_name, db_host, db_name, user, pwd,
         cards = info[card_key]
         execs = info["exec_time"]
         sg = qrep["join_graph"].subgraph(subset)
-        subsql = nx_graph_to_query(sg)
+        subsql = nx_graph_to_query(sg, quote_pred=quote_pred)
 
         if sampling_percentage is not None:
             table_names = []
@@ -436,7 +437,7 @@ def main():
                         args.db_name, args.user, args.pwd, args.port,
                         args.true_timeout, args.pg_total, args.card_cache_dir, fn,
                         args.wj_walk_timeout, i, args.sampling_percentage,
-                        args.sampling_type, True, args.db_year)
+                        args.sampling_type, True, args.db_year, quote_pred=args.quote_pred)
 
             continue
 

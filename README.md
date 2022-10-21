@@ -68,7 +68,7 @@ cd docker
 export LCARD_USER=ceb
 export LCARD_PORT=5432
 docker build --build-arg LCARD_USER=${LCARD_USER} -t pg12 .
-docker run -itd --shm-size=1g --network ceb --name card-db -p ${LCARD_PORT}:5432 -d pg12
+docker run -itd --shm-size=1g --log-opt max-size=1g --network ceb --name card-db -p ${LCARD_PORT}:5432 -d pg12
 docker restart card-db
 docker exec -it card-db /imdb_setup.sh
 ```
@@ -203,6 +203,7 @@ export PYTHONPATH="$(pwd)"
 python3 scripts/sql_to_qrep.py queries/jobm/imdb-job-m.sql queries/jobm/all_jobm
 
 # Add pg-estimated and actual cardinalities to query pkl files
+# If column names contain upper cases, add --quote_pred
 # IN: queries/jobm/all_jobm/*.pkl
 # OUT: queries/jobm/all_jobm/*.pkl (metadata added)
 python3 scripts/get_query_cardinalities.py --db_host=card-db --user=ceb --pwd=password --query_dir=queries/jobm/all_jobm --card_type=actual --skip_zero_queries=0 --db_name=imdb # about 5000sec on JOB-m
