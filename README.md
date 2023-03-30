@@ -627,3 +627,6 @@ python3 scripts/get_query_cardinalities.py --port 5432 --db_name imdb --query_di
 ### TODO: Using wanderjoin
 
 ## Future Work
+
+## Acknowledgement
+This repository is based on [learnedsystems/ceb](https://github.com/learnedsystems/ceb).
